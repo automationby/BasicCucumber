@@ -1,5 +1,6 @@
 package stepDefinition;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
@@ -10,8 +11,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import cucumber.api.DataTable;
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -22,8 +27,9 @@ public class StepDefinitin {
 	static String directory=System.getProperty("user.dir");
 	WebDriverWait wait;
 	
-	@Given("^Url is given$")
-	public void url_is_given() throws Throwable {
+	@Before("@Login")
+	public void setUp()
+	{
 		System.setProperty("webdriver.chrome.driver", directory+"\\EXE\\chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		options.setAcceptInsecureCerts(true);
@@ -33,6 +39,17 @@ public class StepDefinitin {
 		driver.manage().deleteAllCookies();
 		driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+	}
+	
+	@After("@End")
+	public void close()
+	{
+		driver.close();
+	}
+	
+	@Given("^Url is given$")
+	public void url_is_given() throws Throwable {
+		System.out.println("WELCOME to IRCTC");
 	}
 
 	@When("^Invoke browser and open url$")
@@ -63,10 +80,11 @@ public class StepDefinitin {
 	}
 	
 	@Given("^To station and From station is known$")
-	public void to_station_and_from_station_is_known() throws Throwable {
+	public void to_station_and_from_station_is_known(DataTable cred) throws Throwable {
+		List<List<String>> value=cred.raw();
 		Thread.sleep(3000);
-		driver.findElement(By.xpath("//*[contains(@placeholder,'From*')]")).sendKeys("PUNE JN - PUNE");
-		driver.findElement(By.xpath("//*[contains(@placeholder,'To*')]")).sendKeys("NAGPUR - NGP");
+		driver.findElement(By.xpath("//*[contains(@placeholder,'From*')]")).sendKeys(value.get(0).get(0));
+		driver.findElement(By.xpath("//*[contains(@placeholder,'To*')]")).sendKeys(value.get(0).get(1));
 		Thread.sleep(1000);
 	}
 
@@ -85,4 +103,34 @@ public class StepDefinitin {
 		WebElement findTrain=driver.findElement(By.xpath("//*[contains(text(), 'Find trains')]"));
 				findTrain.click();
 	}
-}
+
+	@Given("^User is on result page$")
+	public void user_is_on_result_page() throws Throwable {		
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//*[contains(text(), 'Quota: ')]//parent::div//following-sibling::div//child::div[1]")).click();
+		Thread.sleep(3000);
+		//driver.switchTo().frame(0);
+	}
+
+	@When("^Apply filter for Quota$")
+	public void apply_filter_for_Quota() throws Throwable {
+		System.out.println("Select quota: LADIES");
+	}
+
+	@Then("^Changed option if Quota should be displayed$")
+	public void changed_option_if_Quota_should_be_displayed() throws Throwable {
+		System.out.println("Only LADIES quota for the trains will be shown");
+	}
+	
+	@Given("^User is on Home page$")
+	public void user_is_on_Home_page() throws Throwable {
+		driver.findElement(By.xpath("//*[contains(text(), ' MY ACCOUNT ')]")).click();
+		Thread.sleep(1000);
+	}
+
+	@Then("^click on logout button$")
+	public void click_on_logout_button() throws Throwable {
+		driver.findElement(By.xpath("//*[contains(text(), 'Logout')]")).click();
+	}
+
+	}

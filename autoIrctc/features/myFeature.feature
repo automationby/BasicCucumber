@@ -18,7 +18,7 @@
 #Sample Feature Definition Template
 
 Feature: login to IRCTC
-
+@Login
 Scenario Outline: Login to IRCTC using given username and password
 Given Url is given
 When Invoke browser and open url
@@ -27,9 +27,20 @@ Then click on login button
 
 Examples:
 |username|password|
-|*******|*******|
+|*******|********|
 
 Scenario: Book your ticket
 Given To station and From station is known
+|PUNE JN - PUNE|NAGPUR - NGP|
 When Enter date
 Then Click on Find Trains
+
+Scenario:
+Given User is on result page
+When Apply filter for Quota
+Then Changed option if Quota should be displayed
+
+@End
+Scenario: Logout from IRCTC
+Given User is on Home page
+Then click on logout button 
